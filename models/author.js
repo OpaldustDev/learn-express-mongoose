@@ -2,33 +2,56 @@ var mongoose = require('mongoose');
 
 var Schema = mongoose.Schema;
 
-var AuthorSchema = new Schema(
+var BookSchema = new Schema(
   {
-    first_name: {type: String, required: true, maxLength: 100},
-    family_name: {type: String, required: true, maxLength: 100},
-    date_of_birth: {type: Date},
-    date_of_death: {type: Date},
+    title: { type: String, required: true },
+    author: { type: Schema.Types.ObjectId, ref: 'Author', required: true },
+    summary: { type: String, required: true },
+    isbn: { type: String, required: true },
+    genre: [{ type: Schema.Types.ObjectId, ref: 'Genre' }],
   }
 );
 
-// Virtual for author's full name
-AuthorSchema
-.virtual('name')
-.get(function () {
-// To avoid errors in cases where an author does not have either a family name or first name
-// We want to make sure we handle the exception by returning an empty string for that case
-  var fullname = '';
-  if (this.first_name && this.family_name) {
-    fullname = this.family_name + ', ' + this.first_name
-  }
-  if (!this.first_name || !this.family_name) {
-    fullname = '';
-  }
-  return fullname;
-});
+//Export model
+module.exports = mongoose.model('Book', BookSchema);
 
-// Virtual for author's lifespan
-AuthorSchema.virtual('lifespan').get(function() {});
+var mongoose = require('mongoose');
+
+var Schema = mongoose.Schema;
+
+var GenreSchema = new Schema(
+  {
+    name: { type: String, required: true, minLength: 3, maxLength: 100 },
+  }
+
+);
 
 //Export model
+module.exports = mongoose.model('Genre', GenreSchema);
+module.exports = mongoose.model('Genre', GenreSchema);
+
+// Author Schema
+var AuthorSchema = new Schema(
+  {
+    name: {type: String, required: true, maxLength: 100},
+    birthYear: {type: Number},
+    deathYear: {type: Number}  
+  }
+);
+
+AuthorSchema
+.virtual('lifespan')
+.get(function () {
+  let lifespanString = '';
+  if (this.birthYear) {
+    lifespanString = this.birthYear.toString();
+  }
+  lifespanString += ' - ';
+  if (this.deathYear) {
+    lifespanString += this.deathYear.toString();
+  }
+  return lifespanString;
+});
+
+// Export model
 module.exports = mongoose.model('Author', AuthorSchema);

@@ -18,8 +18,8 @@ let CreateBook = require('./pages/create_book');
 
 const mongoose = require('mongoose');
 const mongoDB = "mongodb://127.0.0.1:27017/my_library_db";
-// mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.connect(mongoDB);
+// mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 db.on('connected', function() {
@@ -37,7 +37,10 @@ app.get('/home', (_, res) => {
 })
 
 app.get('/available', (_, res) => {
-  BooksStatus.show_all_books_status(res);
+  BooksStatus.find({status: "available"}, 'title status', function(err, books) {
+      if (err) return next(err);
+      res.send(books);
+  });
 })
 
 app.get('/books', (_, res) => {
@@ -47,7 +50,10 @@ app.get('/books', (_, res) => {
 })
 
 app.get('/authors', (_, res) => {
-  Authors.show_all_authors(res);
+  Authors.find({}, 'name lifespan', function(err, authors) {
+      if (err) return next(err);
+      res.send(authors);
+  });
 })
 
 app.get('/book_dtls', (req, res) => {
